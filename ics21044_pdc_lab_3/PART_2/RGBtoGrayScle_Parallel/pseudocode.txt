@@ -1,0 +1,51 @@
+main () {
+  input_file = get_input_file()
+  output_file = get_output_file()
+
+  input_img = load_img(input_file)
+  img_height = get_height(input_img)
+  
+  num_threads = get_total_threads()
+
+  # Δομη αποθηκευσης των threads που θα δημιουργηθουν
+  # Την χρησιμοποιούμε για να μπορυμε να εχουμε προσβαση σε αυτα
+  threads_array = make_threads_array(num_threads)
+
+  # Υπολογισμός του τμήματος της εικόνας που θα αναλάβει κάθε thread
+  # Στην πραξη θελουμε καθε νημα να αναλαμβανει μια γραμμη της εικονας
+  # ωστε να σπασουμε το προβλημα σε μικροτερα κομματια που εκτελουνται παραλληλα
+  chunk = calculate_chunk(height, num_threads)
+  
+  for (i=0; i < num_threads; i++) {
+     # Υπολογισμός της αρχής και του τέλους του τμήματος της εικόνας που θα αναλάβει το νήμα
+     start_row = i * chunk
+     end_row = start_row + chunk_size
+
+     # Δημιουργία του νήματος και εκκίνηση
+     thread = new MyThread(start_row, end_row);
+     thread.start()
+  }
+
+  # Αναμονή των νημάτων να τελειώσουν
+  for (thread in threads_array) {
+    thread.join()
+  }
+
+  save_image()
+}
+
+MyThread extends Thread {
+  attribute start_row
+  attribute end_row
+
+  method run() {
+     for (row of start_row and end_row) {
+        for (pixel in img.width) {
+          new_color = calculate_color_based_on_coefficients()
+          img.setColor(color)
+        }
+     }
+  }
+}
+
+

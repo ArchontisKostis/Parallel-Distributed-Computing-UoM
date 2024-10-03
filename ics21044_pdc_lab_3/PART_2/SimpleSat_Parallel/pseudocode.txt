@@ -1,0 +1,46 @@
+main () {
+  circuit_size = 28
+  num_threads = get_total_threads()
+
+  iterations = calculate_iterations(circuit_size)
+
+  # Δομη αποθηκευσης των threads που θα δημιουργηθουν
+  # Την χρησιμοποιούμε για να μπορυμε να εχουμε προσβαση σε αυτα
+  threads_array = make_threads_array(num_threads)
+
+  # Υπολογισμός του τμήματος της εικόνας που θα αναλάβει κάθε thread
+  # Στην πραξη θελουμε καθε νημα να αναλαμβανει μια γραμμη της εικονας
+  # ωστε να σπασουμε το προβλημα σε μικροτερα κομματια που εκτελουνται παραλληλα
+  chunk = calculate_chunk(iterations, num_threads)
+  
+  for (i=0; i < num_threads; i++) {
+     # Υπολογισμός της αρχής και του τέλους του τμήματος της εικόνας που θα αναλάβει το νήμα
+     start = i * chunk
+     end = start + chunk_size
+
+     # Δημιουργία του νήματος και εκκίνηση
+     thread = new MyThread(start, end, circuit_size);
+     thread.start()
+  }
+
+  # Αναμονή των νημάτων να τελειώσουν
+  for (thread in threads_array) {
+    thread.join()
+  }
+
+  save_image()
+}
+
+MyThread extends Thread {
+  attribute start
+  attribute end
+  attribute circuit_size
+
+  method run() {
+     for (start until end) {
+        check_circuit(circuit_size)
+     }
+  }
+}
+
+
